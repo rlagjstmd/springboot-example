@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  elasticsearch-hportal:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+    container_name: elasticsearch-hportal
+    environment:
+      - discovery.type=single-node
+      - cluster.name=hportal-cluster
+      - node.name=devh-node
+      - reindex.remote.whitelist=0.0.0.0:9200
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+    volumes:
+      - ./elasticsearch/data:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - '19200:9200'
+    networks:
+      - hportal-network
+  mariadb-hportal:
+    image: mariadb:10.5.8
+    container_name: mariadb-hportal
+    environment:
+      - MYSQL_ROOT_PASSWORD=123123
+      - MYSQL_DATABASE=hportal
+      - MYSQL_USER=devh
+      - MYSQL_PASSWORD=123123
+    volumes:
+      - ./mariadb/data:/var/lib/mysql
+    ports:
+      - '13306:3306'
+    networks:
+      - hportal-network
+      
+networks:
+  hportal-network:
+    external: true
+
